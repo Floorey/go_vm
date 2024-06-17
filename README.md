@@ -1,6 +1,4 @@
-Natürlich! Hier ist ein Beispiel für eine README-Datei auf Englisch, die du für dein Projekt verwenden kannst:
 
----
 
 # Blockchain VM
 
@@ -117,4 +115,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-This README provides a clear overview of the project, including installation instructions, usage, directory structure, testing instructions, available scripts, contributing guidelines, and license information. You can customize it further as needed for your specific project details.
