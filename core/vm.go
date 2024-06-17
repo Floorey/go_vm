@@ -107,6 +107,7 @@ func (vm *VM) runContract(contract string) (string, error) {
 				return "", errors.New("register b not found")
 			}
 			vm.Registers["a"] = vm.Registers["a"] + vm.Registers["b"]
+			fmt.Printf("ADD executed: a = %d\n", vm.Registers["a"])
 			if err := vm.checkGasLimit(2); err != nil {
 				return "", err
 			}
@@ -118,6 +119,7 @@ func (vm *VM) runContract(contract string) (string, error) {
 				return "", errors.New("register b not found")
 			}
 			vm.Registers["a"] = vm.Registers["a"] - vm.Registers["b"]
+			fmt.Printf("SUB executed: a = %d\n", vm.Registers["a"])
 			if err := vm.checkGasLimit(2); err != nil {
 				return "", err
 			}
@@ -129,6 +131,7 @@ func (vm *VM) runContract(contract string) (string, error) {
 				return "", errors.New("register b not found")
 			}
 			vm.Registers["a"] = vm.Registers["a"] * vm.Registers["b"]
+			fmt.Printf("MUL executed: a = %d\n", vm.Registers["a"])
 			if err := vm.checkGasLimit(3); err != nil {
 				return "", err
 			}
@@ -143,6 +146,7 @@ func (vm *VM) runContract(contract string) (string, error) {
 				return "", errors.New("division by zero")
 			}
 			vm.Registers["a"] = vm.Registers["a"] / vm.Registers["b"]
+			fmt.Printf("DIV executed: a = %d\n", vm.Registers["a"])
 			if err := vm.checkGasLimit(3); err != nil {
 				return "", err
 			}
