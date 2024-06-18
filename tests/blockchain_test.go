@@ -19,8 +19,8 @@ func TestBlockchain(t *testing.T) {
 	vm.AccountManager.CreateAccount("Bob", 500)
 
 	tx1 := core.NewTransaction("Transfer 100 Coins from Alice to Bob", string([]byte{byte(core.OP_TRANSFER)}))
-	copy(vm.Memory[0:], []byte("Alice"))
-	copy(vm.Memory[32:], []byte("Bob"))
+	copy(vm.Memory[0:], []byte("Alice")) // Copy Alice's address to the memory start
+	copy(vm.Memory[32:], []byte("Bob"))  // Copy Bob's address to memory starting at 32
 	vm.Registers["amount"] = 100
 	bc.AddBlock([]*core.Transaction{tx1})
 
@@ -34,4 +34,7 @@ func TestBlockchain(t *testing.T) {
 	if balanceBob != 600 {
 		t.Fatalf("Expected balance of Bob: 600, got: %d", balanceBob)
 	}
+
+	// Print the blockchain (for test verification purposes)
+	bc.PrintChain()
 }
