@@ -1,16 +1,26 @@
 package core
 
-import "log"
+import (
+	"log"
+)
 
 type Blockchain struct {
-	Blocks []*Block
-	VM     *VM // VM instance
+	Blocks           []*Block
+	VM               *VM // VM instance
+	ValidatorManager *ValidatorManager
+	PoH              *ProofOfHistory
 }
 
 func (bc *Blockchain) AddBlock(transactions []*Transaction) {
 	prevBlock := bc.Blocks[len(bc.Blocks)-1]
+	validator := bc.ValidatorManager.SelectValidator()
+
 	newBlock := NewBlock(transactions, prevBlock.Hash)
 	bc.Blocks = append(bc.Blocks, newBlock)
+
+	// Record PoH event
+	event := "Block created by " + validator.Address
+	bc.PoH.RecordEvent(event)
 
 	// Execute all transactions in the block
 	for _, tx := range transactions {
@@ -30,6 +40,6 @@ func (bc *Blockchain) AddBlock(transactions []*Transaction) {
 	}
 }
 
-func NewBlockchain(vm *VM) *Blockchain {
-	return &Blockchain{[]*Block{GenesisBlock()}, vm}
+func NewBlockchain(vm *VM, validatorManager *ValidatorManager, poh *ProofOfHistory) *Blockchain {
+	return &Blockchain{[]*Block{GenesisBlock()}, vm, validatorManager, poh}
 }

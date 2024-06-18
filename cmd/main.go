@@ -7,21 +7,37 @@ import (
 
 func main() {
 	vm := core.NewVM()
-	bc := core.NewBlockchain(vm)
+	validatorManager := core.NewValidatorManager()
+	poh := core.NewProofOfHistory()
 
-	tx1 := core.NewTransaction("Send 1 Coin to Alice", string([]byte{byte(core.OP_PRINT), byte(core.OP_ADD)}))
+	// Add validators
+	validatorManager.AddValidator("Validator1", 100)
+	validatorManager.AddValidator("Validator2", 50)
+
+	bc := core.NewBlockchain(vm, validatorManager, poh)
+
+	// Create accounts
+	vm.AccountManager.CreateAccount("Alice", 1000)
+	vm.AccountManager.CreateAccount("Bob", 500)
+
+	// Print initial balances
+	fmt.Println("Initial Balances:")
+	printBalances(vm)
+
+	// Create and add transactions
+	tx1 := core.NewTransaction("Transfer 100 Coins from Alice to Bob", string([]byte{byte(core.OP_TRANSFER)}))
+	copy(vm.Memory[0:], []byte("Alice"))
+	copy(vm.Memory[32:], []byte("Bob"))
+	vm.Registers["amount"] = 100
 	bc.AddBlock([]*core.Transaction{tx1})
 
-	tx2 := core.NewTransaction("Send 2 Coins to Bob", string([]byte{byte(core.OP_PRINT), byte(core.OP_SUB)}))
-	bc.AddBlock([]*core.Transaction{tx2})
+	// Print final balances
+	fmt.Println("Final Balances:")
+	printBalances(vm)
+}
 
-	for _, block := range bc.Blocks {
-		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
-		fmt.Printf("Hash: %x\n", block.Hash)
-		for _, tx := range block.Transactions {
-			fmt.Printf("Transaction: %s\n", tx.Data)
-			fmt.Printf("Smart Contract Code: %s\n", tx.Code)
-		}
-		fmt.Println()
+func printBalances(vm *core.VM) {
+	for addr, acc := range vm.AccountManager.Accounts {
+		fmt.Printf("Account: %s, Balance: %d\n", addr, acc.Balance)
 	}
 }

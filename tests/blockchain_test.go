@@ -7,23 +7,31 @@ import (
 
 func TestBlockchain(t *testing.T) {
 	vm := core.NewVM()
-	bc := core.NewBlockchain(vm)
+	validatorManager := core.NewValidatorManager()
+	poh := core.NewProofOfHistory()
 
-	tx1 := core.NewTransaction("Send 1 Coin to Alice", string([]byte{byte(core.OP_PRINT), byte(core.OP_ADD)}))
+	validatorManager.AddValidator("Validator1", 100)
+	validatorManager.AddValidator("Validator2", 50)
+
+	bc := core.NewBlockchain(vm, validatorManager, poh)
+
+	vm.AccountManager.CreateAccount("Alice", 1000)
+	vm.AccountManager.CreateAccount("Bob", 500)
+
+	tx1 := core.NewTransaction("Transfer 100 Coins from Alice to Bob", string([]byte{byte(core.OP_TRANSFER)}))
+	copy(vm.Memory[0:], []byte("Alice"))
+	copy(vm.Memory[32:], []byte("Bob"))
+	vm.Registers["amount"] = 100
 	bc.AddBlock([]*core.Transaction{tx1})
 
-	tx2 := core.NewTransaction("Send 2 Coins to Bob", string([]byte{byte(core.OP_PRINT), byte(core.OP_SUB)}))
-	bc.AddBlock([]*core.Transaction{tx2})
+	balanceAlice, _ := vm.AccountManager.GetBalance("Alice")
+	balanceBob, _ := vm.AccountManager.GetBalance("Bob")
 
-	if len(bc.Blocks) != 3 {
-		t.Fatalf("Expected blockchain length of 3, got %d", len(bc.Blocks))
+	if balanceAlice != 900 {
+		t.Fatalf("Expected balance of Alice: 900, got: %d", balanceAlice)
 	}
 
-	if string(bc.Blocks[1].Transactions[0].Data) != "Send 1 Coin to Alice" {
-		t.Fatalf("Unexpected transaction data: %s", bc.Blocks[1].Transactions[0].Data)
-	}
-
-	if string(bc.Blocks[2].Transactions[0].Data) != "Send 2 Coins to Bob" {
-		t.Fatalf("Unexpected transaction data: %s", bc.Blocks[2].Transactions[0].Data)
+	if balanceBob != 600 {
+		t.Fatalf("Expected balance of Bob: 600, got: %d", balanceBob)
 	}
 }
