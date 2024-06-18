@@ -6,21 +6,20 @@ import (
 )
 
 func main() {
-	vm := core.NewVM()
-	err := vm.LoadContract("example", string([]byte{byte(core.OP_PRINT), byte(core.OP_ADD)}))
-	if err != nil {
-		fmt.Printf("Failed to load contract: %v\n", err)
-		return
+	bc := core.NewBlockchain()
+
+	tx1 := core.NewTransaction("Send 1 BTC to Alice")
+	bc.AddBlock([]*core.Transaction{tx1})
+
+	tx2 := core.NewTransaction("Send 2 BTC to Bob")
+	bc.AddBlock([]*core.Transaction{tx2})
+
+	for _, block := range bc.Blocks {
+		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
+		fmt.Printf("Hash: %x\n", block.Hash)
+		for _, tx := range block.Transactions {
+			fmt.Printf("Transaction: %s\n", tx.Data)
+		}
+		fmt.Println()
 	}
-
-	vm.Registers["a"] = 5
-	vm.Registers["b"] = 10
-
-	result, err := vm.Execute("example")
-	if err != nil {
-		fmt.Printf("Failed to execute contract: %v\n", err)
-		return
-	}
-
-	fmt.Printf("Execution result: %s\n", result)
 }
